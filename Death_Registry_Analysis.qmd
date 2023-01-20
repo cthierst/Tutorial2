@@ -1,0 +1,127 @@
+---
+title: "Analysis of Toronto Death Registry Statistics"
+date: "19 January 2023"
+author: "Chloe Thierstein"
+editor: visual
+---
+
+```{r}
+#### Preamble ####
+# Purpose: Read in data from Toronto's statistics on death registry and make a graph that compares the amount of death licenses given from each civic centre.
+# Author: Chloe Thierstein
+# Email: chloe.thierstein@utoronto.ca
+# Date: 19 January 2023
+# Prerequisites: Need to know where to find the City of Toronto death registry data
+```
+
+```{r}
+#### Citations ####
+citation()
+citation("janitor")
+citation("curl")
+citation("ggplot2")
+citation("tidyverse")
+citation("opendatatoronto")
+```
+
+```{r}
+#### Set-up ####
+
+library(tidyverse)
+library(janitor)
+library(ggplot2)
+
+```
+
+```{r}
+#### Read in Data ####
+raw_death_registry_data <-
+  read_csv(
+    file = 
+      "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/cba07a90-984b-42d2-9131-701c8c2a9788/resource/cc418325-b3d0-4afd-ae64-ccb9b71c549c/download/Death%20Registry%20Statistics%20Data.csv",
+    show_col_types = FALSE,
+    skip = 0
+  )
+
+write_csv(
+  x = raw_death_registry_data,
+  file = "death_registry.csv"
+)
+```
+
+```{r}
+#### Basic Cleaning ####
+raw_death_registry_data <-
+  read_csv(
+    file = "death_registry.csv",
+    show_col_types = FALSE
+  )
+
+```
+
+```{r}
+#### Clean Names ####
+cleaned_death_registry_data <-
+  clean_names(raw_death_registry_data)
+
+head(cleaned_death_registry_data)
+```
+
+```{r}
+#### Simplifying Date #### 
+cleaned_death_registry_data <-
+  cleaned_death_registry_data |>
+  separate(
+    col = time_period,
+    into = c("Year", "Month"),
+    sep = "-"
+  ) |>
+  select(-Month) #remove month column as unnecessary
+
+
+```
+
+```{r}
+#### Selecting Relevant Rows ####
+cleaned_death_registry_data <- cleaned_death_registry_data[c(82:155),] #only keeping rows for 2012
+```
+
+```{r}
+#### Recoding Civic Centres to be more Meaningful ####
+cleaned_death_registry_data <- cleaned_death_registry_data |> 
+  mutate( 
+    civic_centre = 
+      recode( 
+        civic_centre, 
+        "ET" = "Etobicoke", 
+        "NY" = "North York", 
+        "SC" = "Scarborough", 
+        "TO" = "Toronto", 
+        ) 
+    )
+```
+
+```{r}
+#### Selecting Relevant Columns####
+cleaned_death_registry_data <-
+  cleaned_death_registry_data |>
+  select(
+    death_licenses,
+    civic_centre
+  )
+  
+
+```
+
+```{r}
+#### Creating Graph ####
+ggplot(data=cleaned_death_registry_data, aes(x = civic_centre, y = death_licenses)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() + 
+  labs(
+    x = "Civic Centre",
+    y = "Death Licenses (2012)"
+  )
+
+
+```
