@@ -10,5 +10,3 @@
 ###### Software: RStudio (Version 2022.12.0+353 (2022.12.0+353))
 ###### RStudio Packages: ggplot2, tidyverse, janitor, and opendatatoronto
 
-## Instructions for Data Preparation and Analysis
-##### To begin install all required packages using install.packages() (ggplot2, tidyverse, janitor, and opendatatoronto) and open them using library(). Next, read in data from 
